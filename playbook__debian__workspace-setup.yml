@@ -1,0 +1,134 @@
+# to run from terminal: `ansible-playbook -i inventory.ini playbook__debian__workspace-setup.yml --ask-vault-pass -vv`
+
+---
+- name: Prepare workspace environment on Ubuntu/Kubuntu/Debian
+  hosts: localhost
+  become: yes
+  vars_files:
+    - vault.yml
+  tasks:
+    - name: Update apt package list
+      apt:
+        update_cache: yes
+
+    - name: Upgrade all packages to the latest version
+      apt:
+        upgrade: dist
+
+    - name: Install Networking Tools
+      apt:
+        name:
+          - snapd
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - net-tools
+          - software-properties-common
+          - network-manager-openvpn
+          - network-manager-l2tp
+          - sshpass
+          - gparted
+        state: present
+
+    - name: Install Programming Tools
+      apt:
+        name:
+          - python3-pip
+          - openjdk-11-jdk
+        state: present
+
+    - name: Install Database
+      apt:
+        name:
+          - postgresql
+        state: present
+
+    - name: Install IDE
+      community.general.snap:
+        name:
+          - code
+          - intellij-idea-community
+          - pycharm-community
+        classic: true
+        state: present
+
+    - name: Install Clients (Rest/Database/FTP)
+      community.general.snap:
+        name:
+          - postman
+          - insomnia
+          - dbeaver-ce
+          - flyway
+          - filezilla
+        state: present
+
+    - name: Install Communication Platform
+      community.general.snap:
+        name:
+          - slack
+          - skype
+          - discord
+          - zoom-client
+        state: present
+
+    - name: Install Web Browser
+      community.general.snap:
+        name:
+          - brave
+        state: present
+    
+    - name: [NodeJs] Add NodeSource APT repository for Node.js
+      shell: curl -sL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+      args:
+        executable: /bin/bash
+    
+    - name: [NodeJs] Install Node.js
+      apt:
+        name: nodejs
+        state: present
+
+    # NVM is not working
+
+    - name: [NVM] Add Node Version Manager (NVM)
+      shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+      args:
+        executable: /bin/bash
+    
+    - name: [NVM] Add node v18.18 with Node Version Manager (NVM)
+      shell: nvm install v18.18.2
+      args:
+        executable: /bin/bash
+
+    - name: [Docker] Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    
+    - name: [Docker] Add Docker APT repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: present
+    
+    - name: [Docker] Update APT package index and Install Docker CE
+      apt:
+        update_cache: yes
+        name: docker-ce
+        state: present
+    
+    - name: [Docker] Ensure Docker service is running
+      systemd:
+        name: docker
+        state: restarted
+        enabled: yes
+    
+    - name: [Docker] Add user to docker group
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: Clean up
+      apt:
+        autoremove: yes
+        autoclean: yes
+

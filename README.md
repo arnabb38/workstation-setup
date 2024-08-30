@@ -1,12 +1,11 @@
-# workstation-setup
-Workstation setup automation
-
+### Install Ansible
 
 ```shell
-sudo apt update
-sudo apt install -y ansible
+sudo apt install ansible-core
+
+ansible-vault encrypt vault.yml
+
+ansible-playbook -i inventory.ini playbook__debian__workspace-setup.yml --ask-vault-pass -vv
+
+# Vault.yml password: 123
 ```
-
-### To run ansible playlist
-> ansible-playbook -i inventory setup.yml
-
