@@ -15,10 +15,14 @@
       apt:
         upgrade: dist
 
-    - name: Install Networking Tools
+    - name: Install Software Package Repo
       apt:
         name:
           - snapd
+
+    - name: Install Networking Tools
+      apt:
+        name:
           - apt-transport-https
           - ca-certificates
           - curl
@@ -27,6 +31,12 @@
           - network-manager-openvpn
           - network-manager-l2tp
           - sshpass
+        state: present
+
+    - name: Install System Tools
+      apt:
+        name:
+          - bat
           - gparted
         state: present
 
@@ -35,6 +45,7 @@
         name:
           - python3-pip
           - openjdk-11-jdk
+          - golang-go
         state: present
 
     - name: Install Database
