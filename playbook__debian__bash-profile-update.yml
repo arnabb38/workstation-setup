@@ -1,0 +1,38 @@
+# to run from terminal: `ansible-playbook -i inventory.ini playbook__debian__bash-profile-update.yml --ask-vault-pass -vv`
+
+---
+- name: Append aliases to .bashrc
+  hosts: localhost
+  become: yes
+  vars_files:
+    - vault.yml
+  vars:
+    user_home: "{{ lookup('env', 'HOME') }}"
+    user_name: "{{ lookup('env', 'USER') }}"
+
+  tasks:
+    - name: Ensure 'alias ll' is in .bashrc
+      lineinfile:
+        path: "{{ user_home }}/.bashrc"
+        regexp: "^alias ll="
+        line: 'alias ll="ls -alF"'
+        state: present
+        insertafter: EOF
+
+    - name: Ensure 'alias python=python3' is in .bashrc
+      lineinfile:
+        path: "{{ user_home }}/.testrc"
+        regexp: "^alias python=python3"
+        line: "alias python=python3"
+        state: present
+        insertafter: EOF
+
+    - name: Source the updated .bashrc
+      shell: "source {{ user_home }}/.bashrc"
+      args:
+        executable: /bin/bash
+      register: bashrc_output
+
+    - name: Show the result of sourcing .bashrc
+      debug:
+        var: bashrc_output.stdout

@@ -1,7 +1,7 @@
-# to run from terminal: `ansible-playbook -i inventory.ini playbook__debian__workspace-setup.yml --ask-vault-pass -vv`
+# to run from terminal: `ansible-playbook -i inventory.ini playbook__debian__workstation-setup.yml --ask-vault-pass -vv`
 
 ---
-- name: Prepare workspace environment on Ubuntu/Kubuntu/Debian
+- name: Prepare workstation environment on Ubuntu/Kubuntu/Debian
   hosts: localhost
   become: yes
   vars_files:
@@ -87,7 +87,7 @@
         name:
           - brave
         state: present
-    
+        
     - name: [NodeJs] Add NodeSource APT repository for Node.js
       shell: curl -sL https://deb.nodesource.com/setup_20.x | sudo -E bash -
       args:
