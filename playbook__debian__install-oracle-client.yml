@@ -1,0 +1,52 @@
+---
+- name: Install Oracle Instant Client
+  hosts: all
+  become: yes
+  tasks:
+    - name: Create /opt/oracle directory
+      file:
+        path: /opt/oracle
+        state: directory
+        mode: "0755"
+
+    - name: Download Oracle Instant Client
+      get_url:
+        url: https://download.oracle.com/otn_software/linux/instantclient/2115000/instantclient-basic-linux.x64-21.15.0.0.0dbru.zip
+        dest: /opt/oracle/instantclient-basic-linux.x64-21.15.0.0.0dbru.zip
+
+    - name: Unzip Oracle Instant Client
+      unarchive:
+        src: /opt/oracle/instantclient-basic-linux.x64-21.15.0.0.0dbru.zip
+        dest: /opt/oracle/
+        remote_src: yes
+
+    - name: Add LD_LIBRARY_PATH to .bashrc
+      lineinfile:
+        path: /root/.bashrc
+        line: "export LD_LIBRARY_PATH=/opt/oracle/instantclient_21_15:$LD_LIBRARY_PATH"
+        state: present
+
+    - name: Add ORACLE_HOME to .bashrc
+      lineinfile:
+        path: /root/.bashrc
+        line: "export ORACLE_HOME=/opt/oracle/instantclient_21_15:$PATH"
+        state: present
+
+    - name: Source .bashrc (will affect only this session)
+      shell: "source ~/.bashrc"
+      args:
+        executable: /bin/bash
+
+    - name: Create symbolic link for libaio
+      file:
+        src: /usr/lib/x86_64-linux-gnu/libaio.so.1
+        dest: /opt/oracle/instantclient_21_15/libaio.so.1
+        state: link
+
+    - name: Add Oracle Instant Client path to ld.so.conf.d
+      copy:
+        content: "/opt/oracle/instantclient_21_15"
+        dest: /etc/ld.so.conf.d/oracle-instantclient.conf
+
+    - name: Run ldconfig to update the dynamic linker cache
+      command: ldconfig
