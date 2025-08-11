@@ -78,7 +78,6 @@
       community.general.snap:
         name:
           - slack
-          - skype
           - discord
           - zoom-client
         state: present
