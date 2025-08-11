@@ -44,6 +44,7 @@
       apt:
         name:
           - python3-pip
+          - openjdk-8-jdk
           - openjdk-11-jdk
           - golang-go
         state: present
